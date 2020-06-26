@@ -11,14 +11,20 @@ assert block.function is not None
 start = block.start
 end = block.end
 arch = frame.architecture()
-instructions = arch.disassemble(start, end - 1)
-for instruction in instructions:
-    if instruction['asm'].startswith('ret'):
-        print("found end")
-    # print(instruction['asm'])
-# o = gdb.execute('i r', to_string=True)
-# gdb.execute('ni')
-# print(o)
+end_addr = end - 1
+
+instruction = arch.disassemble(end - 1)[0]
+
+if not instruction['asm'].startswith('ret'):
+    instructions = arch.disassemble(start, end - 1)
+    for instruction in instructions:
+        if instruction['asm'].startswith('ret'):
+            end_addr = instruction['addr']
+
+while gdb.parse_and_eval("$pc") != end_addr:
+    gdb.execute('ni', to_string=True)
+    o = gdb.execute('i r', to_string=True)
+    # print(o)
 
 gdb.execute('c')
 gdb.execute('quit')
