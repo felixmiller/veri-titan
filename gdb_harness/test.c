@@ -11,7 +11,7 @@ void sub(uint32_t *a, uint32_t *b, uint32_t len) {
 }
 
 int main() {
-	uint32_t a[3] = {1, 2, 3};
-	uint32_t b[3] = {1, 2, 3};
+	uint32_t a[3] = {0xfa, 0xbb, 0xcf};
+	uint32_t b[3] = {0xad, 0xb1, 0xac};
 	sub(a, b, 3);
 }
