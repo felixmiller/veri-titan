@@ -1,7 +1,7 @@
 #include <stdint.h>
 #include "random_buffer.h"
 
-void sub(uint32_t *a, uint32_t *b, uint32_t len) {
+void add(uint32_t *a, uint32_t *b, uint32_t len) {
     int64_t A = 0;
     int i;
     for (i = 0; i < len; ++i) {
@@ -16,7 +16,7 @@ int main() {
 	uint32_t* a = random_buffer(words);
 	uint32_t* b = random_buffer(words);
 
-	sub(a, b, words);
+	add(a, b, words);
 
     free(a);
     free(b);
