@@ -1,5 +1,5 @@
-test-x86: test.c
-	gcc -m32 test.c -g -o test_x86
+test-x86: test.c random_buffer.h
+	gcc -m32 test.c random_buffer.h -g -o test_x86
 
 harness:
 	gdb -q -x harness.py
