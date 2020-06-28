@@ -7,15 +7,41 @@ module test {
  	newtype{:nativeType "uint"} uint32 = i:int | 0 <= i < 0x100000000
  	newtype{:nativeType "long"} int64 = i:int | -0x8000000000000000 <= i < 0x8000000000000000
  	newtype{:nativeType "ulong"} uint64 = i:int | 0 <= i < 0x10000000000000000
+
  	const UINT32_MAX :uint32 := 0xffffffff;
+    const BASE :int := UINT32_MAX as int + 1;
 
     function method lh64(x: uint64) : (r: uint32)
 
  	function method uh64(x: uint64) : (r: uint32)
 
  	lemma split64_lemma(x: uint64)
- 	 	ensures uh64(x) as int * (UINT32_MAX as int + 1) + lh64(x) as int == x as int;
- 	 	ensures lh64(x) as int == x as int % (UINT32_MAX as int + 1);
+ 	 	ensures uh64(x) as int * BASE + lh64(x) as int == x as int;
+ 	 	ensures lh64(x) as int == x as int % BASE;
+
+    function method {:opaque} power(b:nat, e:nat) : nat
+        decreases e;
+        ensures b > 0 ==> power(b, e) > 0;
+        ensures b == 0 && e != 0 ==> power(b, e) == 0;
+    {
+        if (e == 0) then 1
+        else b * power(b, e - 1)
+    }
+
+    function interp(a: array<uint32>, n: nat) : nat
+        reads a;
+        decreases n;
+        requires 0 <= n <= a.Length;
+    {
+        if n == 0 then 0
+        else a[n - 1] as nat * power(BASE, n - 1) + interp(a, n - 1)
+    }
+
+    function bignum(a: array<uint32>) : nat
+        reads a;
+    {
+        interp(a, a.Length)
+    }
 
     method add(a: array<uint32>, b: array<uint32>, len: uint32)
         requires a != b;
