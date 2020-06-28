@@ -37,10 +37,19 @@ module test {
         else a[n - 1] as nat * power(BASE, n - 1) + interp(a, n - 1)
     }
 
-    function bignum(a: array<uint32>) : nat
+    function bignum(a: array<uint32>): nat
         reads a;
     {
         interp(a, a.Length)
+    }
+
+    lemma uint32_add_lemma(a: uint32, b: uint32, A: uint64)
+        requires A <= 1;
+        ensures uh64(a as uint64 + b as uint64 + A) <= 1;
+    {
+        var A' := a as int + b as int + A as int;
+        assert A' <= 0x1ffffffff;
+        assume false;
     }
 
     method add(a: array<uint32>, b: array<uint32>, len: uint32)
@@ -48,13 +57,16 @@ module test {
         requires a.Length == b.Length == len as int;
         modifies a;
     {
+        ghost var old_a := a;
+
         var i: uint32 := 0;
         var A: uint64 := 0;
 
         while i < len
             decreases len as int - i as int;
+            invariant A <= 1;
         {
-            assume A == 0 || A == 1;
+            uint32_add_lemma(a[i], b[i], A);
             A := a[i] as uint64 + b[i] as uint64 + A;
             a[i] := lh64(A);
             A := uh64(A) as uint64;
