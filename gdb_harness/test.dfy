@@ -46,6 +46,11 @@ module test {
         assume false;
     }
 
+    predicate {:opaque} werid(i: uint32, j: uint32)
+    {
+        j >= i
+    }
+
     method add(a: array<uint32>, b: array<uint32>, len: uint32)
         requires a != b;
         requires a.Length == b.Length == len as int > 10;
@@ -62,10 +67,10 @@ module test {
             assume bignum(a, i as int) + A as nat * power(BASE, i as int) 
                 == bignum(old(a), i  as int) + bignum(b, i as int);
 
-            assume forall j : uint32:: 0 <= j < i ==> old(a[i]) == a[i];
-
             uint32_add_lemma(a[i], b[i], A);
-            assert a[i] == old(a[i]);
+            assume a[i] == old(a[i]);
+            ghost var old_A := A as int;
+
             A := a[i] as uint64 + b[i] as uint64 + A;
             a[i] := lh64(A);
             A := uh64(A) as uint64;
@@ -73,6 +78,7 @@ module test {
             calc == {
                 bignum(a, i as int + 1);
                 bignum(a, i as int) + a[i] as int * power(BASE, i as int);
+                bignum(a, i as int) + (old(a[i]) as int + b[i] as int + old_A) * power(BASE, i as int);
             }
     
             i := i + 1;
