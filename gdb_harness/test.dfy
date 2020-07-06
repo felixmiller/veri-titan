@@ -46,43 +46,53 @@ module test {
         assume false;
     }
 
-    predicate {:opaque} werid(i: uint32, j: uint32)
-    {
-        j >= i
-    }
-
-    method add(a: array<uint32>, b: array<uint32>, len: uint32)
-        requires a != b;
-        requires a.Length == b.Length == len as int > 10;
+    method buffer_fill(a: array<uint8>, v: uint8, len: uint32)
+        requires a.Length == len as int;
         modifies a;
+        ensures forall j :: j < len ==> a[j] == v;
     {
         var i: uint32 := 0;
-        var A: uint64 := 0;
-
-        while i < len
+        while i < len 
             decreases len as int - i as int;
             invariant 0 <= i <= len;
-            invariant A <= 1;
+            invariant forall j :: j < i ==> a[j] == v;
         {
-            assume bignum(a, i as int) + A as nat * power(BASE, i as int) 
-                == bignum(old(a), i  as int) + bignum(b, i as int);
-
-            uint32_add_lemma(a[i], b[i], A);
-            assume a[i] == old(a[i]);
-            ghost var old_A := A as int;
-
-            A := a[i] as uint64 + b[i] as uint64 + A;
-            a[i] := lh64(A);
-            A := uh64(A) as uint64;
-    
-            calc == {
-                bignum(a, i as int + 1);
-                bignum(a, i as int) + a[i] as int * power(BASE, i as int);
-                bignum(a, i as int) + (old(a[i]) as int + b[i] as int + old_A) * power(BASE, i as int);
-            }
-    
+            a[i] := v;
             i := i + 1;
         }
     }
 
+    // method add(a: array<uint32>, b: array<uint32>, len: uint32)
+    //     requires a != b;
+    //     requires a.Length == b.Length == len as int > 10;
+    //     modifies a;
+    // {
+    //     var i: uint32 := 0;
+    //     var A: uint64 := 0;
+
+    //     while i < len
+    //         decreases len as int - i as int;
+    //         invariant 0 <= i <= len;
+    //         invariant A <= 1;
+    //     {
+    //         assume bignum(a, i as int) + A as nat * power(BASE, i as int) 
+    //             == bignum(old(a), i  as int) + bignum(b, i as int);
+
+    //         uint32_add_lemma(a[i], b[i], A);
+    //         assume a[i] == old(a[i]);
+    //         ghost var old_A := A as int;
+
+    //         A := a[i] as uint64 + b[i] as uint64 + A;
+    //         a[i] := lh64(A);
+    //         A := uh64(A) as uint64;
+    
+    //         calc == {
+    //             bignum(a, i as int + 1);
+    //             bignum(a, i as int) + a[i] as int * power(BASE, i as int);
+    //             bignum(a, i as int) + (old(a[i]) as int + b[i] as int + old_A) * power(BASE, i as int);
+    //         }
+    
+    //         i := i + 1;
+    //     }
+    // }
 }
