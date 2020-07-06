@@ -1,0 +1,32 @@
+   0x000005ea <+0>:	push   %ebp
+   0x000005eb <+1>:	mov    %esp,%ebp
+   0x000005ed <+3>:	sub    $0x14,%esp
+   0x000005f0 <+6>:	call   0x68b <__x86.get_pc_thunk.ax>
+
+   // 0xc(%ebp)  : v
+   // 0x10(%ebp) : len
+   // 0x8(%ebp)  : a
+
+   // -0x14(%ebp): v
+   // -0x4(%ebp) : i
+
+   0x000005f5 <+11>:	add    $0x19db,%eax
+   0x000005fa <+16>:	mov    0xc(%ebp),%eax
+   0x000005fd <+19>:	mov    %al,-0x14(%ebp)
+   0x00000600 <+22>:	movl   $0x0,-0x4(%ebp) // i = 0
+   0x00000607 <+29>:	jmp    0x61b <buffer_fill+49>
+
+   0x00000609 <+31>:	mov    0x8(%ebp),%edx // %edx <- a
+   0x0000060c <+34>:	mov    -0x4(%ebp),%eax // %eax <- i
+   0x0000060f <+37>:	add    %eax,%edx // %edx <- a + i
+   0x00000611 <+39>:	movzbl -0x14(%ebp),%eax // %eax <- v
+   0x00000615 <+43>:	mov    %al,(%edx) // a[i] <- v
+   0x00000617 <+45>:	addl   $0x1,-0x4(%ebp) // i = i + 1
+
+   0x0000061b <+49>:	mov    -0x4(%ebp),%eax
+   0x0000061e <+52>:	cmp    0x10(%ebp),%eax // i < len
+   0x00000621 <+55>:	jb     0x609 <buffer_fill+31>
+
+   0x00000623 <+57>:	nop
+   0x00000624 <+58>:	leave  
+   0x00000625 <+59>:	ret
